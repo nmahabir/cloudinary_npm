@@ -1053,3 +1053,13 @@ exports.jsonArrayParam = jsonArrayParam = (data, callback)->
   data = [data] unless isArray(data)
   data = callback(data) if isFunction(callback)
   JSON.stringify(data)
+
+
+
+singleSource = (publicId, options, w) ->
+  o = clone(options)
+  transformation = utils.generate_transformation_string(o) + "/c_scale,w_${w}"
+  utils.url(publicId, extend(o, raw_transformation: transformation)) + " ${w}w"
+
+createSrcset = (publicId, stops = [], options) ->
+  stops.map(w -> singleSource(publicId, options, w)).join(", ")

@@ -13,6 +13,13 @@ exports.url = function(public_id, options) {
 exports.image = function (source, options) {
   var responsive, html, current_class, classes;
   options = _.extend({}, options);
+  srcset = cloudinary.utils.option_consume(options, "srcset");
+  attribute = cloudinary.utils.option_consume(options, "srcset");
+
+  if( lodash.get(srcset, "transformation")){
+    src_options = extend({}, options, srcset.transformation)
+  }
+
   source = cloudinary.utils.url(source, options);
   if ("html_width" in options) options["width"] = cloudinary.utils.option_consume(options, "html_width");
   if ("html_height" in options) options["height"] = cloudinary.utils.option_consume(options, "html_height");
