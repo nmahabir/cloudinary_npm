@@ -15,7 +15,7 @@
     "lodash": "^4.17.4"
   },
   "devDependencies": {
-    "coffee-script": "^1.11.0",
+    "coffeescript": "^2.3.0",
     "dotenv": "4.x",
     "expect.js": "0.3.x",
     "jsdom": "^9.12.0",

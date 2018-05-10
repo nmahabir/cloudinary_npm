@@ -52,10 +52,10 @@ exports.upload_chunked = (path, callback, options) ->
 
 class Chunkable extends Writable
   constructor: (options)->
+    super(options)
     @chunk_size = options.chunk_size  ? 20000000
     @buffer = new Buffer(0)
     @active = true
-    super(options)
     @on 'finish', () =>
       @emit('ready', @buffer, true, ->) if @active
 
