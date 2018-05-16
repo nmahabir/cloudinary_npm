@@ -1,47 +1,56 @@
 var _ = require('lodash'),  cloudinary = module.exports;
 exports.config = require("./lib/config");
-exports.utils = require("./lib/utils");
+exports.utils = utils = require("./lib/utils");
 exports.uploader = require("./lib/uploader");
 exports.api = require("./lib/api");
 exports.PreloadedFile = require("./lib/preloaded_file");
-
+const optionConsume = cloudinary.utils.option_consume;
 exports.url = function(public_id, options) {
   options = _.extend({}, options);
   return cloudinary.utils.url(public_id, options);
 };
+generateBreakpoints = require('./lib/utils/generateBreakpoints');
+const {srcsetUrl, generateSrcsetAttribute, generateSizesAttribute} = require('./lib/utils/srcsetUtils');
 
 exports.image = function (source, options) {
   var responsive, html, current_class, classes;
-  options = _.extend({}, options);
-  srcset = cloudinary.utils.option_consume(options, "srcset");
-  attribute = cloudinary.utils.option_consume(options, "srcset");
+  let localOptions = _.extend({}, options);
+  let srcsetParam = optionConsume(localOptions, 'srcset');
+  let attributes = optionConsume(localOptions, 'attributes', {});
+  let src = cloudinary.utils.url(source, localOptions);
+  if ("html_width" in localOptions) localOptions["width"] = optionConsume(localOptions, "html_width");
+  if ("html_height" in localOptions) localOptions["height"] = optionConsume(localOptions, "html_height");
 
-  if( lodash.get(srcset, "transformation")){
-    src_options = extend({}, options, srcset.transformation)
-  }
-
-  source = cloudinary.utils.url(source, options);
-  if ("html_width" in options) options["width"] = cloudinary.utils.option_consume(options, "html_width");
-  if ("html_height" in options) options["height"] = cloudinary.utils.option_consume(options, "html_height");
-
-  client_hints = cloudinary.utils.option_consume(options, "client_hints", cloudinary.config().client_hints);
-  responsive = cloudinary.utils.option_consume(options, "responsive");
-  hidpi = cloudinary.utils.option_consume(options, "hidpi");
+  client_hints = optionConsume(localOptions, "client_hints", cloudinary.config().client_hints);
+  responsive = optionConsume(localOptions, "responsive");
+  hidpi = optionConsume(localOptions, "hidpi");
 
   if ((responsive || hidpi) && !client_hints) {
-    options["data-src"] = source;
+    localOptions["data-src"] = src;
     classes = [responsive ? "cld-responsive" : "cld-hidpi"];
-    current_class = cloudinary.utils.option_consume(options, "class");
+    current_class = optionConsume(localOptions, "class");
     if (current_class) classes.push(current_class);
-    options["class"] = classes.join(" ");
-    source = cloudinary.utils.option_consume(options, "responsive_placeholder", cloudinary.config().responsive_placeholder);
-    if (source == "blank") {
-      source = cloudinary.BLANK;
+    localOptions["class"] = classes.join(" ");
+    src = optionConsume(localOptions, "responsive_placeholder", cloudinary.config().responsive_placeholder);
+    if (src == "blank") {
+      src = cloudinary.BLANK;
     }
   }
   html = "<img ";
-  if (source) html += "src='" + source + "' ";
-  html += cloudinary.utils.html_attrs(options) + "/>";
+  if (src) html += "src='" + src + "' ";
+  if(srcsetParam) {
+    if(_.isString(srcsetParam)){
+      attributes.srcset = srcsetParam;
+    } else if(_.isObject(srcsetParam) && !_.isEmpty(srcsetParam)){
+      attributes.srcset = generateSrcsetAttribute(source, options);
+      if(srcsetParam.sizes === true){
+        attributes.sizes = generateSizesAttribute(srcsetParam);
+      }
+    }
+    delete localOptions.width;
+    delete localOptions.height;
+  }
+  html += cloudinary.utils.html_attrs(_.extend(localOptions, attributes)) + "/>";
   return html;
 };
 
@@ -67,9 +76,9 @@ exports.video = function (public_id, options) {
   var src, video_options, fallback, source_transformation, source_types, source, multi_source, html;
   options = _.extend({}, options);
   public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '');
-  source_types = cloudinary.utils.option_consume(options, 'source_types', []);
-  source_transformation = cloudinary.utils.option_consume(options, 'source_transformation', {});
-  fallback = cloudinary.utils.option_consume(options, 'fallback_content', '');
+  source_types = optionConsume(options, 'source_types', []);
+  source_transformation = optionConsume(options, 'source_transformation', {});
+  fallback = optionConsume(options, 'fallback_content', '');
 
   if (source_types.length === 0) source_types = cloudinary.utils.DEFAULT_VIDEO_SOURCE_TYPES;
   video_options = _.cloneDeep(options);
@@ -98,8 +107,8 @@ exports.video = function (public_id, options) {
   }
   src = cloudinary.utils.url(source, video_options);
   if (!multi_source) video_options.src = src;
-  if (video_options.hasOwnProperty("html_width")) video_options.width = cloudinary.utils.option_consume(video_options, 'html_width');
-  if (video_options.hasOwnProperty("html_height")) video_options.height = cloudinary.utils.option_consume(video_options, 'html_height');
+  if (video_options.hasOwnProperty("html_width")) video_options.width = optionConsume(video_options, 'html_width');
+  if (video_options.hasOwnProperty("html_height")) video_options.height = optionConsume(video_options, 'html_height');
   html = html + cloudinary.utils.html_attrs(video_options) + '>';
   if (multi_source) {
     var source_type, transformation, video_type, mime_type;

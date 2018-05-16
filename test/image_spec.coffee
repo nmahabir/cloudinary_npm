@@ -4,7 +4,7 @@ helper = require("./spechelper")
 sharedContext = helper.sharedContext
 sharedExamples = helper.sharedExamples
 includeContext = helper.includeContext
-
+extend = require('lodash/extend')
 describe 'image helper', ->
   beforeEach ->
     cloudinary.config(true) # Reset
@@ -70,3 +70,121 @@ describe 'image helper', ->
       it "supports auto width", ->
         tag = cloudinary.image( 'sample.jpg', {crop: "scale", dpr: "auto", cloud_name: "test", width: "auto:breakpoints", client_hints: true})
         expect(tag).to.match( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto:breakpoints\/sample.jpg["']/)
+
+
+  describe "srcset", ->
+    lastBreakpoint = 399
+    breakpoints = [100, 200, 300, lastBreakpoint]
+    commonTrans =
+      effect: 'sepia',
+      cloud_name: 'test123',
+      client_hints: false
+    commonTransformationStr = 'e_sepia'
+    customAttributes = custom_attr1: 'custom_value1', custom_attr2: 'custom_value2'
+
+    it "Should create srcset attribute with provided breakpoints", ->
+      tagWithBreakpoints = cloudinary.image('sample.jpg', utils.extend({}, commonTrans, srcset: breakpoints: breakpoints ) )
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, '', breakpoints)
+      expect(tagWithBreakpoints).to.eql(expected)
+
+    it "Support srcset attribute defined by min width max width and max images", ->
+      tag = cloudinary.image 'sample.jpg', extend({}, commonTrans,
+        srcset:
+          min_width: breakpoints[0],
+          max_width: lastBreakpoint,
+          max_images: breakpoints.length
+      )
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, '', breakpoints)
+      expect(tag).to.eql(expected)
+
+    it "should support a single srcset image", ->
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        srcset: {
+          min_width: breakpoints[0],
+          max_width: lastBreakpoint,
+          max_images: 1
+      }))
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, '', [lastBreakpoint])
+      expect(tag).to.eql(expected)
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        srcset: breakpoints: [lastBreakpoint]
+      ))
+      expect(tag).to.eql(expected)
+
+    it "Should support custom transformation for srcset items", ->
+      custom = {transformation: {crop: "crop", width: 10, height: 20}}
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        srcset:
+          breakpoints: breakpoints,
+          transformation: {crop: "crop", width: 10, height: 20}
+      ))
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, 'c_crop,h_20,w_10', breakpoints)
+      expect(tag).to.eql(expected)
+
+    it "Should populate sizes attribute", ->
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        srcset:
+          breakpoints: breakpoints,
+          sizes: true
+      ))
+      expectedSizesAttr = '(max-width: 100px) 100px, (max-width: 200px) 200px, ' +
+      '(max-width: 300px) 300px, (max-width: 399px) 399px'
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, '', breakpoints, sizes: expectedSizesAttr)
+      expect(tag).to.eql(expected)
+
+    it "Should support srcset string value", ->
+      rawSrcSet = "some srcset data as is"
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        srcset: rawSrcSet
+      ))
+      expected = getExpectedSrcsetTag('sample.jpg', commonTransformationStr, '', [], srcset: rawSrcSet)
+      expect(tag).to.eql(expected)
+
+    it "Should remove width and height attributes in case srcset is specified, but passed to transformation", ->
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        {width: 500, height: 500},
+        srcset: {breakpoints}
+      ))
+      expected = getExpectedSrcsetTag('sample.jpg', 'e_sepia,h_500,w_500', '', breakpoints)
+      expect(tag).to.eql(expected)
+
+    describe "errors", ->
+      invalidBreakpoints= [
+        [{sizes: true},                                      "srcset data not provided"],
+        [{max_width: 300, max_images: 3},                    "no min_width"],
+        [{min_width: 100, max_images: 3},                    "no max_width"],
+        [{min_width: 200, max_width: 100, max_images: 3},    "min_width > max_width"],
+        [{min_width: 100, max_width: 300},                   "no max_images"],
+        [{min_width: 100, max_width: 300, max_images: 0},    "invalid max_images"],
+        [{min_width: 100, max_width: 300, max_images: -17},  "invalid max_images"],
+        [{min_width: 100, max_width: 300, max_images: null}, "invalid max_images"],
+      ].forEach ([srcset, subject])=>
+        it "Should throw an exception for " + subject, ->
+          expect(()->
+            cloudinary.image('sample.jpg', utils.extend(srcset: srcset, commonTrans))
+          ).to.throwException()
+
+
+    it "Should throw InvalidArgumentException on invalid values", ->
+
+      tag = cloudinary.image('sample.jpg', extend({}, commonTrans,
+        {width: 500, height: 500},
+        srcset: {breakpoints}
+      ))
+      expected = getExpectedSrcsetTag('sample.jpg', 'e_sepia,h_500,w_500', '', breakpoints)
+      expect(tag).to.eql(expected)
+
+uploadPath = "http://res.cloudinary.com/test123/image/upload"
+getExpectedSrcsetTag = (publicId, commonTrans, customTrans, breakpoints, attributes = {})->
+  if(!customTrans)
+    customTrans = commonTrans
+
+  if(!utils.isEmpty(breakpoints))
+    attributes.srcset = breakpoints.map((width)->
+      "#{uploadPath}/#{customTrans}/c_scale,w_#{width}/#{publicId} #{width}w").join(', ');
+  tag = "<img src='#{uploadPath}/#{commonTrans}/#{publicId}'"
+  attrs = Object.entries(attributes).map(([key, value])-> "#{key}='#{value}'").join(' ')
+  if(attrs)
+    tag += ' ' + attrs
+  tag += "/>"
+

@@ -309,7 +309,7 @@ exports.build_custom_headers = (headers) ->
 exports.present = (value) ->
   not isUndefined(value) and ("" + value).length > 0
 
-transformationParams = [
+TRANSFORMATION_PARAMS = [
   'angle',
   'aspect_ratio',
   'audio_codec',
@@ -515,10 +515,10 @@ exports.updateable_resource_params = (options, params = {}) ->
   params
 
 ###*
-  * A list of keys used by the url() function.
-  * @private
+ * A list of keys used by the url() function.
+ * @private
 ###
-urlKeys = [
+URL_KEYS = [
   'api_secret',
   'auth_token',
   'cdn_subdomain',
@@ -543,7 +543,7 @@ urlKeys = [
 exports.extractConfigParams = (options)->
   if utils.isEmpty(options) then return {}
   opt = {}
-  urlKeys.forEach((name)-> if options[name] then opt[name] = options[name])
+  URL_KEYS.forEach((name)-> if options[name] then opt[name] = options[name])
   opt
 
 exports.url = (public_id, options = {}) ->
