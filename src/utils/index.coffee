@@ -6,7 +6,7 @@
 
 utils = exports
 
-config = require("./config")
+config = require("../config")
 crypto = require('crypto')
 querystring = require('querystring')
 url = require('url')
@@ -41,7 +41,7 @@ utils.isUndefined = isUndefined = require('lodash/isUndefined');
 utils.keys = keys = require('lodash/keys');
 utils.merge = merge = require('lodash/merge');
 
-generate_token = require("./auth_token")
+generate_token = require("../auth_token")
 exports.generate_auth_token = (options)->
   token_options = Object.assign {}, config().auth_token, options
   generate_token token_options
@@ -52,7 +52,7 @@ exports.AKAMAI_SHARED_CDN = "res.cloudinary.com"
 exports.SHARED_CDN = exports.AKAMAI_SHARED_CDN
 
 try
-  exports.VERSION = require('../package.json').version
+  exports.VERSION = require('../../package.json').version
 catch
 
 
@@ -309,11 +309,56 @@ exports.build_custom_headers = (headers) ->
 exports.present = (value) ->
   not isUndefined(value) and ("" + value).length > 0
 
+transformationParams = [
+  'angle',
+  'aspect_ratio',
+  'audio_codec',
+  'audio_frequency',
+  'background',
+  'bit_rate',
+  'border',
+  'color',
+  'color_space',
+  'crop',
+  'default_image',
+  'delay',
+  'density',
+  'dpr',
+  'duration',
+  'effect',
+  'end_offset',
+  'fetch_format',
+  'flags',
+  'gravity',
+  'if',
+  'keyframe_interval',
+  'offset',
+  'opacity',
+  'overlay',
+  'page',
+  'prefix',
+  'quality',
+  'radius',
+  'responsive_width',
+  'size',
+  'start_offset',
+  'streaming_profile',
+  'transformation',
+  'underlay',
+  'variables',
+  'video_codec',
+  'video_sampling',
+  'x',
+  'y',
+  'zoom',
+] # + any key that starts with '$'
+
+
 exports.generate_transformation_string = (options) ->
   if isArray(options)
     result = for base_transformation in options
       utils.generate_transformation_string(clone(base_transformation))
-    return result.join("/")
+    return result.filter((i)=>i&&i.length).join("/")
 
   responsive_width = utils.option_consume(options, "responsive_width", config().responsive_width)
   width = options["width"]
@@ -468,6 +513,38 @@ exports.updateable_resource_params = (options, params = {}) ->
   params.tags = utils.build_array(options.tags).join(",") if options.tags?
 
   params
+
+###*
+  * A list of keys used by the url() function.
+  * @private
+###
+urlKeys = [
+  'api_secret',
+  'auth_token',
+  'cdn_subdomain',
+  'cloud_name',
+  'cname',
+  'format',
+  'format',
+  'private_cdn',
+  'resource_type',
+  'secure',
+  'secure_cdn_subdomain',
+  'secure_distribution',
+  'shorten',
+  'sign_url',
+  'ssl_detected',
+  'type',
+  'url_suffix',
+  'use_root_path',
+  'version',
+]
+
+exports.extractConfigParams = (options)->
+  if utils.isEmpty(options) then return {}
+  opt = {}
+  urlKeys.forEach((name)-> if options[name] then opt[name] = options[name])
+  opt
 
 exports.url = (public_id, options = {}) ->
   type = utils.option_consume(options, "type", null)
