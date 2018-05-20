@@ -7,6 +7,7 @@ bin
 !lib/
 lib/*spec.*
 *.js
+!cloudinary.js
 # utils folder has js sources.
 # Until all CoffeeScript is replace, we treat this as a special case.
 !src/utils/*.js
