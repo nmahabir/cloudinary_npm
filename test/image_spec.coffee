@@ -159,7 +159,7 @@ describe 'image helper', ->
         [{min_width: 100, max_width: 300, max_images: -17},  "invalid max_images"],
         [{min_width: 100, max_width: 300, max_images: null}, "invalid max_images"],
       ].forEach ([srcset, subject])=>
-        it "Should throw an exception for " + subject, ->
+        it "Should throw an exception when " + subject, ->
           expect(()->
             cloudinary.image('sample.jpg', utils.extend(srcset: srcset, commonTrans))
           ).to.throwException()
