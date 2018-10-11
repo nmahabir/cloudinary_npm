@@ -6,5 +6,8 @@
     "src/v2/index.coffee"
   ],
   "names": [],
-  "mappings": "AAAA;AAAA,MAAA;;EAAA,EAAA,GAAK,OAAA,CAAQ,qBAAR;;EACL,KAAA,GAAQ,OAAA,CAAQ,cAAR;;EACR,EAAA,GAAK,KAAA,CAAM,EAAN;;EACL,EAAE,CAAC,GAAH,GAAS,OAAA,CAAQ,OAAR;;EACT,EAAE,CAAC,QAAH,GAAc,OAAA,CAAQ,YAAR;;EACd,EAAE,CAAC,MAAH,GAAY,OAAA,CAAQ,UAAR;;EACZ,MAAM,CAAC,OAAP,GAAiB;AANjB"
+  "mappings": "AAAA,IAAA,KAAA,EAAA,EAAA,EAAA;;AAAA,EAAA,GAAK,OAAA,CAAQ,qBAAR;;AACL,KAAA,GAAQ,OAAA,CAAQ,cAAR;;AACR,EAAA,GAAK,KAAA,CAAM,EAAN;;AACL,EAAE,CAAC,GAAH,GAAS,OAAA,CAAQ,OAAR;;AACT,EAAE,CAAC,QAAH,GAAc,OAAA,CAAQ,YAAR;;AACd,EAAE,CAAC,MAAH,GAAY,OAAA,CAAQ,UAAR;;AACZ,MAAM,CAAC,OAAP,GAAiB",
+  "sourcesContent": [
+    "v1 = require('../../cloudinary.js')\nclone = require('lodash/clone')\nv2 = clone(v1)\nv2.api = require('./api')\nv2.uploader = require('./uploader')\nv2.search = require('./search')\nmodule.exports = v2\n"
+  ]
 }
