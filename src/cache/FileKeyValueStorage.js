@@ -14,11 +14,11 @@ class FileKeyValueStorage {
         this.baseFolder = baseFolder;
       });
     } else {
-      fs.mkdtemp('cloudinary_cache_', (err, folder) => {
-        if (err) throw err;
-        console.info("Created temporary cache folder at " + folder);
-        this.baseFolder = folder;
-      })
+      if(!fs.existsSync('test_cache')) {
+        fs.mkdirSync('test_cache');
+      }
+      this.baseFolder = fs.mkdtempSync('test_cache/cloudinary_cache_');
+      console.info("Created temporary cache folder at " + this.baseFolder);
     }
   }
 
@@ -47,7 +47,7 @@ class FileKeyValueStorage {
   }
 
   getFilename(key) {
-    return path.format({name: key, ext: '.json', dir: this.baseFolder});
+    return path.format({name: key, base: key, ext: '.json', dir: this.baseFolder});
   }
 
 }
