@@ -3,3 +3,11 @@ node_js:
 - '4'
 - '6'
 - '8'
+- '10'
+script:
+  - local node_v=$(node --version)
+  - if [[ ${node_v%%.*§} == 'v4' ]]; then
+  -   node_modules/.bin/mocha --require 'babel-register' --require 'babel-polyfill' -R spec --recursive test/
+  - else
+  -   node_modules/.bin/mocha -R spec --recursive test/
+  - fi
