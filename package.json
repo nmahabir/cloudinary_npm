@@ -40,9 +40,9 @@
     "sinon": "^6.1.4"
   },
   "scripts": {
-    "compile": "node_modules/.bin/babel src --out-dir lib --delete-dir-on-start --verbose",
-    "test": "node_modules/.bin/mocha -R spec --recursive test/",
-    "test-node4": "node_modules/.bin/mocha --require 'babel-register' --require 'babel-polyfill' -R spec --recursive test/",
+    "compilex": "node_v=$(node --version)§\nif [[ ${node_v%%.*§} == 'v4' ]]\nthen\nnode_modules/.bin/babel src --out-dir lib --delete-dir-on-start --verbose\nelse\nrm -rf lib/* && cp -r src/* lib \nfi",
+    "compile": "node_modules/.bin/babel lib --out-dir lib-node4 --delete-dir-on-start --verbose",
+    "test": "node_modules/.bin/mocha -R spec --recursive --require 'babel-register' --require 'babel-polyfill' test/",
     "docs": "npm run compile && node_modules/.bin/jsdoc -d docs -r -p lib/*",
     "echo": "echo"
   },
