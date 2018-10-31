@@ -1,6 +1,11 @@
 language: node_js
-node_js:
-- '4'
-- '6'
-- '8'
-- '10'
+matrix:
+  include:
+  - rvm: 4
+    script: npm run test4
+  - rvm: 6
+    script: npm run test4
+  - rvm: 8
+    script: npm run test10
+  - rvm: 10
+    script: npm run test10
