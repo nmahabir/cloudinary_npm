@@ -82,18 +82,19 @@ expect.Assertion::beServedByCloudinary = (done)->
     done()
   @
 
-class sharedExamples
-  constructor: (name, examples)->
-    @allExamples ?= {}
-    if isFunction(examples)
-      @allExamples[name] = examples
-      examples
-    else
-      if @allExamples[name]?
-        return @allExamples[name]
+allExamples = null
+sharedExamples = do (allExamples, isFunction)->
+  (name, examples)->
+      allExamples ?= {}
+      if isFunction(examples)
+        allExamples[name] = examples
+        examples
       else
-        return ->
-          console.log("Shared example #{name} was not found!")
+        if allExamples[name]?
+          return allExamples[name]
+        else
+          return ->
+            console.log("Shared example #{name} was not found!")
 
 exports.sharedExamples = exports.sharedContext = sharedExamples
 
