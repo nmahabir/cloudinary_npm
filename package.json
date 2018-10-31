@@ -11,15 +11,18 @@
   },
   "main": "cloudinary.js",
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.11",
     "q": "^1.5.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
-    "babel-runtime": "^6.26.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
+    "babel-runtime": "^6.26.0",
     "coffee-script": "^1.12.7",
     "dotenv": "4.x",
     "expect.js": "0.3.x",
@@ -31,9 +34,10 @@
     "sinon": "^6.1.4"
   },
   "scripts": {
-    "compilex": "node_v=$(node --version)§\nif [[ ${node_v%%.*§} == 'v4' ]]\nthen\nnode_modules/.bin/babel src --out-dir lib --delete-dir-on-start --verbose\nelse\nrm -rf lib/* && cp -r src/* lib \nfi",
+    "test": "node_v=$(node --version)§\nif [[ ${node_v%%.*§} == 'v4' ]]\nthen\necho 4 && npm run test4\nelse\necho 10 && npm run test10\nfi",
     "compile": "node_modules/.bin/babel lib --out-dir lib-node4 --delete-dir-on-start --verbose",
-    "test": "node_modules/.bin/mocha -R spec --recursive --require 'babel-register' --require 'babel-polyfill' test/",
+    "test10": "which node && node node_modules/.bin/mocha --ui bdd -R spec --recursive test/",
+    "test4": "node node_modules/.bin/mocha -R spec --recursive --require 'babel-register' --require 'babel-polyfill' test/",
     "docs": "npm run compile && node_modules/.bin/jsdoc -d docs -r -p lib/*",
     "echo": "echo"
   },

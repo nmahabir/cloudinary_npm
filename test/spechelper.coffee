@@ -1,17 +1,23 @@
 expect = require('expect.js')
-cloudinary = require("../cloudinary")
-utils = require("../lib/utils")
-{
-  isEmpty 
-  isFunction 
-  last
-} = utils
 isFunction = require('lodash/isFunction')
 cloneDeep = require('lodash/cloneDeep')
-config = require("../lib/config")
-Cache = require('../lib/cache')
-FileKeyValueStorage = require('../lib/cache/FileKeyValueStorage')
-KeyValueCacheAdapter = require('../lib/cache/KeyValueCacheAdapter')
+
+libPath = exports.libPath = if process.versions.node[0] == '4' then 'lib-node4' else 'lib'
+
+cloudinary = require("../cloudinary")
+{
+  utils
+  config
+  Cache
+} = cloudinary
+
+{
+  isEmpty 
+  last
+} = utils
+
+FileKeyValueStorage = require("../#{libPath}/cache/FileKeyValueStorage")
+KeyValueCacheAdapter = require("../#{libPath}/cache/KeyValueCacheAdapter")
 
 http = require('http')
 https = require('https')
