@@ -1,11 +1,13 @@
 language: node_js
+nvm:
+
 matrix:
   include:
-  - nvm: "4"
+  - node_js: "4"
     script: npm run test4
-  - nvm: "6"
+  - node_js: "6"
     script: npm run test4
-  - nvm: "8"
+  - node_js: "8"
     script: npm run test10
-  - nvm: "10"
+  - node_js: "10"
     script: npm run test10
