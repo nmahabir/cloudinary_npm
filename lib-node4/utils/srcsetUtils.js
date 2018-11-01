@@ -6,7 +6,7 @@ var utils = require('./index');
 var isEmpty = utils.isEmpty;
 var generateBreakpoints = require('./generateBreakpoints');
 var config = require('../../cloudinary').config;
-var Cache = require('./../Cache');
+var Cache = require('../cache');
 
 /**
  * Options used to generate the srcset attribute.
